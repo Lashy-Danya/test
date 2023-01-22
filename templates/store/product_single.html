@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block title %}
-{% if product %}{{ product.model }}{% else %}Products{% endif %}
+{% if product %}{{ product.name }}{% else %}Products{% endif %}
 {% endblock %}
 
 {% block content %}
@@ -36,8 +36,32 @@
         </div>
 
         <div class="col-md-7 col-lg-7 ps-md-3 ps-lg-5">
-            <h1 class="mb-0 h4">{{ product.name }}</h1>
-            <p>{{ product.description|slice:":355" }}</p>
+
+            <div class="card">
+                <h5 class="card-header">Продукт: {{ product.manufacturer }} {{ product.name }}</h5>
+                <div class="card-body">
+                    <h5 class="card-title">Описание</h5>
+                    <p class="card-text">{{ product.description }}</p>
+
+                    <h6 class="card-title">Гарантия</h5>
+                    <p class="card-text">{{ product.warranty }} месяцев</p>
+
+                    <h6 class="card-title">Цена</h5>
+                    <p class="card-tetx">{{ product.price }}</p>
+
+                    {% if data_value %}
+                        <h6 class="card-title">Характеристики</h6>
+
+                        {% for i in data_value %}
+
+                            <p class="card-text">{{ i.0 }}: {{ i.1 }}</p>
+
+                        {% endfor %}
+
+                    {% endif %}
+                </div>
+            </div>
+
         </div>
     </div>
 

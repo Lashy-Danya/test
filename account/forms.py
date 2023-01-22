@@ -6,9 +6,9 @@ from django.contrib.auth.models import User
 class UserLoginForm(AuthenticationForm):
     """Форма для входа"""
     username = forms.CharField(widget=forms.TextInput(
-        attrs={'class': 'form-control mb-3', 'placeholder': 'Username', 'id': 'login-username'}))
-    password = forms.CharField(widget=forms.PasswordInput(
-        attrs={'class': 'form-control', 'placeholder': 'Password', 'id': 'login-pwd'}))
+        attrs={'class': 'form-control mb-3', 'placeholder': 'Имя пользователя', 'id': 'login-username'}))
+    password = forms.CharField(label='Пароль', widget=forms.PasswordInput(
+        attrs={'class': 'form-control', 'placeholder': 'Пароль', 'id': 'login-pwd'}))
 
 class UserEditForm(forms.ModelForm):
     """Форма для редактирования информации о пользователи"""
