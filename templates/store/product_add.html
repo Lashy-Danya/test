@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}Добавление продукта{% endblock %}
+{% load static %}
+{% block stylesheet %}
+<link rel="stylesheet" href="{% static 'account/css/account.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="d-flex align-items-center">
+    <div class="col-12 col-md-6 col-lg-6 mx-auto">
+
+        <h1 class="pb-3 h5">Добавление продукта</h1>
+
+        <form action="{% url 'store:add_product' %}" method="post">
+
+            {% csrf_token %}
+
+            {% if form_product.errors %}
+            <div class="alert alert-primary" role="alert">
+                {{ form_product.non_field_errors }}
+            </div>
+            {% endif %}
+
+            <div class="mb-3">
+                <label class="small font-weight-bold">
+                    {{ form_product.name.label }}
+                </label>
+                {{ form_product.name }}
+            </div>
+
+            <div class="mb-3">
+                <label class="small font-weight-bold">
+                    {{ form_product.description.label }}
+                </label>
+                {{ form_product.description }}
+            </div>
+
+            <div class="mb-3">
+                <label class="small font-weight-bold">
+                    {{ form_product.product_type.label }}
+                </label>
+                {{ form_product.product_type }}
+            </div>
+
+            <div class="mb-3">
+                <label class="small font-weight-bold">
+                    {{ form_product.category.label }}
+                </label>
+                {{ form_product.category }}
+            </div>
+
+            <div class="mb-3">
+                <label class="small font-weight-bold">
+                    {{ form_product.manufacturer.label }}
+                </label>
+                {{ form_product.manufacturer }}
+            </div>
+
+            <div class="mb-3">
+                <label class="small font-weight-bold">
+                    {{ form_product.price.label }}
+                </label>
+                {{ form_product.price }}
+            </div>
+
+            <div class="mb-3">
+                <label class="small font-weight-bold">
+                    {{ form_product.warranty.label }}
+                </label>
+                {{ form_product.warranty }}
+            </div>
+            
+            <button class="btn btn-primary btn-block py-2 mb-4 mt-5 fw-bold w-100" type="submit">
+                Добавить
+            </button>
+
+        </form>
+
+    </div>
+</div>
+
+{% endblock %}

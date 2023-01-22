@@ -1,0 +1,21 @@
+{% extends '../base_account.html' %}
+{% block title %}Статус сброса пароля{% endblock %}
+
+
+
+{% block content %}
+
+<div class="container">
+    <div>
+        {% if 'email' in request.get_full_path %}
+        <h3 class="mb-4">Успешный сброс пароля</h3>
+        <p>Проверьте свою электронную почту, чтобы получить инструкции</p>
+        {% endif %}
+        {% if 'complete' in request.get_full_path %}
+        <h3 class="mb-4">Успешный сброс пароля</h3>
+        <a href="{% url 'account:login' %}">Войти</a>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,92 @@
+https://dbdiagram.io/
+
+Table Category {
+  id int [pk, increment]
+  name varchar
+}
+
+Table Manufacturer {
+  id int [pk, increment]
+  name varchar
+  country varchar
+}
+
+Table Discount {
+  id int [pk, increment]
+  name varchar
+  amount int
+  reason text
+}
+
+Table ProductType {
+  id int [pk, increment]
+  name varchar
+}
+
+Table ProductTechicalData {
+  id int [pk, increment]
+  name varchar
+  product_type int
+}
+Ref: ProductType.id < ProductTechicalData.product_type
+
+Table Product {
+  id int [pk, increment]
+  product_type int
+  category int
+  name varchar
+  description text
+  price decimal
+  manufacturer int
+  discount int
+  warranty int
+}
+Ref: Manufacturer.id < Product.manufacturer
+Ref: ProductType.id < Product.product_type
+Ref: Category.id < Product.category
+Ref: Discount.id < Product.discount
+
+Table ProductTechnicalDataValue {
+  id int [pk, increment]
+  product int
+  technical_data int
+  value varchar
+}
+Ref: Product.id < ProductTechnicalDataValue.product
+Ref: ProductTechicalData.id < ProductTechnicalDataValue.technical_data
+
+Table ProductImage {
+  id int [pk, increment]
+  product int
+  image image
+  desc_image varchar
+}
+Ref: Product.id < ProductImage.product
+
+Table Vendor {
+  id int [pk, increment]
+  name varchar
+}
+
+Table ShipmentType {
+  id int [pk, increment]
+  name varchar
+}
+
+Table ShipmentDetails {
+  id int [pk, increment]
+  vendor int
+  date_shipment date
+  shipment_type int
+}
+Ref: Vendor.id < ShipmentDetails.vendor
+Ref: ShipmentType.id < ShipmentDetails.shipment_type
+
+Table ShipmentDetailsData {
+  id int [pk, increment]
+  product int
+  shipment int
+  count int
+}
+Ref: Product.id < ShipmentDetailsData.product
+Ref: ShipmentDetails.id < ShipmentDetailsData.shipment

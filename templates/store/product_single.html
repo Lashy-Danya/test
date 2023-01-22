@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}
+{% if product %}{{ product.model }}{% else %}Products{% endif %}
+{% endblock %}
+
+{% block content %}
+
+<div class="container">
+
+    <div class="row g-3">
+        <div class="col-md-5 col-lg-5 order-md-first">
+
+            <div id="carouselExample" class="carousel slide">
+                <div class="carousel-inner">
+                    {% for image in product.image_product.all %}
+            
+                    {% if forloop.first %}
+                    <div class="carousel-item active">
+                    {% else %}
+                    <div class="carousel-item">
+                    {% endif %}
+                        <img src="{{ image.image.url }}" class="d-block w-100" alt="{ image.image.desc_image }}">
+                    </div>
+                    {% endfor %}
+                </div>
+                <button class="carousel-control-prev" type="button" data-bs-target="#carouselExample" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Previous</span>
+                  </button>
+                  <button class="carousel-control-next" type="button" data-bs-target="#carouselExample" data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Next</span>
+                  </button>                
+            </div>
+
+        </div>
+
+        <div class="col-md-7 col-lg-7 ps-md-3 ps-lg-5">
+            <h1 class="mb-0 h4">{{ product.name }}</h1>
+            <p>{{ product.description|slice:":355" }}</p>
+        </div>
+    </div>
+
+</div>
+
+
+{% endblock %}
