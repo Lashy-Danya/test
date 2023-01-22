@@ -71,8 +71,10 @@
                 {{ form_product.warranty }}
             </div>
 
-            {{ form_product.slugs_cnt }}
-            
+            {% if data_product_formset %}
+                {{ data_product_formset.as_p }}
+            {% endif %}
+
             <button class="btn btn-primary btn-block py-2 mb-4 mt-5 fw-bold w-100" type="submit">
                 Добавить
             </button>
@@ -81,5 +83,6 @@
 
     </div>
 </div>
+
 
 {% endblock %}

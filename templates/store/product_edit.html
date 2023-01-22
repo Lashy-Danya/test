@@ -7,12 +7,15 @@
 <form method="post">
 
     {% csrf_token %}
-    <p>
-        <label>Ведите название</label>
-        <input type="text" name="name" value="{{ product.name }}">
-    </p>
 
-    <input type="submit" value="Сохранить" >
+    {{ product_form.as_p }}
+    
+    {% if data_value_form %}
+        <h3>Характеристики</h3>
+        {{ data_value_form.as_p }}
+    {% endif %}
+
+    <input type="submit" value="Сохранить">
 
 </form>
 

@@ -59,6 +59,9 @@
                         {% endfor %}
 
                     {% endif %}
+
+                    <a href="{% url 'store:product_edit' product.id %}">Изменить</a><br>
+                    <a href="{% url 'store:delete_product' product.id %}">Удалить</a>
                 </div>
             </div>
 

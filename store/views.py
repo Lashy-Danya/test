@@ -6,7 +6,7 @@ from django.db import connection
 from django.forms import formset_factory
 
 from .models import Category, Product
-from .forms import AddProductForm, AddTechnicalDataValueForm
+from .forms import AddProductForm, AddTechnicalDataValueForm, EditProductForm, EditTechnicalDataValueForm
 
 @login_required
 def product_all(request):
@@ -75,20 +75,6 @@ def category_list(request, category_slug):
 @login_required
 def add_product(request):
 
-    # DataProductFormSet = formset_factory(AddTechnicalDataValueForm)
-    # ProductFormSet = formset_factory(AddProductForm)
-
-    # if request.method == 'POST':
-    #     data_product_formset = DataProductFormSet(request.POST)
-    #     product_formset = ProductFormSet(request.POST)
-
-    #     if data_product_formset.is_valid() and product_formset.is_valid():
-    #         pass
-
-    # else:
-    #     data_product_formset = DataProductFormSet()
-    #     product_formset = ProductFormSet()
-
     if request.method == 'POST':
         form_product = AddProductForm(request.POST)
         if form_product.is_valid():
@@ -106,3 +92,42 @@ def add_product(request):
 
     return render(request, 'store/product_add.html', context)
 
+@login_required
+def edit_product(request, id):
+
+    product = get_object_or_404(Product, id=id)
+
+    product_form = EditProductForm(request.POST, instance=product)
+
+    data_value_form = EditTechnicalDataValueForm(request.POST)
+
+    context = {
+        'product_form': product_form,
+        'data_value_form': data_value_form,
+        'product': product
+    }
+
+    if all([product_form.is_valid(), data_value_form.is_valid()]):
+        parent = product_form.save(commit=False)
+        parent.save()
+
+        child = data_value_form.save(commit=False)
+        child.product = parent
+        child.save()
+
+        print(product_form.cleaned_data)
+        print(data_value_form.cleaned_data)
+        
+
+    return render(request, 'store/product_edit.html', context)
+
+
+# вызовать сохр. процедуру удаления
+@login_required
+def delete_product(request, id):
+
+    product = get_object_or_404(Product, id=id)
+
+    product.delete()
+
+    return redirect('store:product_all')
