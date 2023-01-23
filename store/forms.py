@@ -1,4 +1,5 @@
 from django import forms
+from django.forms import inlineformset_factory
 
 from .models import Product, Category, ProductType, Manufacturer, ProductTechnicalDataValue
 
@@ -55,13 +56,6 @@ class AddProductForm(forms.Form):
         self.fields['category'].empty_label = 'Категория не выбрана'
         self.fields['product_type'].empty_label = 'Тип товара не выбран'
         self.fields['manufacturer'].empty_label =  'Производитель не выбран'
-
-class AddTechnicalDataValueForm(forms.ModelForm):
-    """Форма для добавления значений характеристик товара"""
-
-    class Meta:
-        model = ProductTechnicalDataValue
-        fields = ['technical_data', 'value']
     
 
 class EditProductForm(forms.ModelForm):
@@ -71,10 +65,86 @@ class EditProductForm(forms.ModelForm):
         model = Product
         fields = ('name', 'description', 'price', 'warranty')
 
+class ProductForm(forms.ModelForm):
 
-class EditTechnicalDataValueForm(forms.ModelForm):
-    """Форма для редактирования характеристик"""
+    class Meta:
+        model = Product
+        fields = (
+            'name', 'description', 'price', 'warranty', 
+            'product_type', 'category', 'manufacturer'
+        )
+
+        widgets = {
+            'name': forms.TextInput(
+                attrs={
+                    'class': 'form-control'
+                }
+            ),
+            'description': forms.Textarea(
+                attrs={
+                    'class': 'form-control', 'placeholder': 'Описание',
+                    'rows': '3'
+                }
+            ),
+            'price': forms.NumberInput(
+                attrs={
+                    'class': 'form-control'
+                }
+            ),
+            'warranty': forms.NumberInput(
+                attrs={
+                    'class': 'form-control'
+                }
+            ),
+            'product_type': forms.Select(
+                attrs={
+                    'class': 'form-select'
+                }
+            ),
+            'category': forms.Select(
+                attrs={
+                    'class': 'form-select'
+                }
+            ),
+            'manufacturer': forms.Select(
+                attrs={
+                    'class': 'form-select'
+                }
+            ),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['category'].empty_label = 'Категория не выбрана'
+        self.fields['product_type'].empty_label = 'Тип товара не выбран'
+        self.fields['manufacturer'].empty_label =  'Производитель не выбран'
+
+class TechnicalDataValueForm(forms.ModelForm):
+    """Форма для характеристик"""
 
     class Meta:
         model = ProductTechnicalDataValue
         fields = ['technical_data', 'value']
+
+        widgets = {
+            'technical_data': forms.Select(
+                attrs={
+                    'class': 'form-control'
+                }
+            ),
+            'value': forms.TextInput(
+                attrs={
+                    'class': 'form-control'
+                }
+            )
+            
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['technical_data'].empty_label = 'Параметр не выбран'
+
+TechnicalDataValueFormSet = inlineformset_factory(
+    Product, ProductTechnicalDataValue, form=TechnicalDataValueForm, extra=1,
+    can_delete=True, can_delete_extra=True
+)

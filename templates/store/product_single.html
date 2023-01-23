@@ -61,6 +61,7 @@
                     {% endif %}
 
                     <a href="{% url 'store:product_edit' product.id %}">Изменить</a><br>
+                    <a href="{% url 'store:update_product' product.id %}">Изменить Новый</a><br>
                     <a href="{% url 'store:delete_product' product.id %}">Удалить</a>
                 </div>
             </div>

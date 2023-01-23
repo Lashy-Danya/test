@@ -3,10 +3,80 @@ from django.shortcuts import redirect
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib.auth.decorators import login_required
 from django.db import connection
-from django.forms import formset_factory
+from django.forms import inlineformset_factory
 
-from .models import Category, Product
-from .forms import AddProductForm, AddTechnicalDataValueForm, EditProductForm, EditTechnicalDataValueForm
+from django.views.generic.edit import (
+    CreateView, UpdateView
+)
+from django.contrib import messages
+
+from .models import Category, Product, ProductTechnicalDataValue
+from .forms import AddProductForm, EditProductForm, ProductForm, TechnicalDataValueFormSet
+
+class ProductInline():
+    form_class = ProductForm
+    model = Product
+    template_name = "store/product_create_or_update.html"
+
+    def form_valid(self, form):
+        named_formsets = self.get_named_formsets()
+        if not all((x.is_valid() for x in named_formsets.values())):
+            return self.render_to_response(self.get_context_data(form=form))
+
+        self.object = form.save()
+
+        # for every formset, attempt to find a specific formset save function
+        # otherwise, just save.
+        for name, formset in named_formsets.items():
+            formset_save_func = getattr(self, 'formset_{0}_valid'.format(name), None)
+            if formset_save_func is not None:
+                formset_save_func(formset)
+            else:
+                formset.save()
+        return redirect('store:product_all')
+
+    def formset_variants_valid(self, formset):
+        """
+        Hook for custom formset saving.Useful if you have multiple formsets
+        """
+        variants = formset.save(commit=False)  # self.save_formset(formset, contact)
+        # add this 2 lines, if you have can_delete=True parameter 
+        # set in inlineformset_factory func
+        for obj in formset.deleted_objects:
+            obj.delete()
+        for variant in variants:
+            variant.product = self.object
+            variant.save()
+
+class ProductCreate(ProductInline, CreateView):
+
+    def get_context_data(self, **kwargs):
+        ctx = super(ProductCreate, self).get_context_data(**kwargs)
+        ctx['named_formsets'] = self.get_named_formsets()
+        return ctx
+
+    def get_named_formsets(self):
+        if self.request.method == "GET":
+            return {
+                'variants': TechnicalDataValueFormSet(prefix='variants'),
+            }
+        else:
+            return {
+                'variants': TechnicalDataValueFormSet(self.request.POST or None, self.request.FILES or None, prefix='variants'),
+            }
+
+class ProductUpdate(ProductInline, UpdateView):
+
+    def get_context_data(self, **kwargs):
+        ctx = super(ProductUpdate, self).get_context_data(**kwargs)
+        ctx['named_formsets'] = self.get_named_formsets()
+        return ctx
+
+    def get_named_formsets(self):
+        return {
+            'variants': TechnicalDataValueFormSet(self.request.POST or None, self.request.FILES or None, instance=self.object, prefix='variants'),
+        }
+
 
 @login_required
 def product_all(request):
@@ -97,27 +167,31 @@ def edit_product(request, id):
 
     product = get_object_or_404(Product, id=id)
 
-    product_form = EditProductForm(request.POST, instance=product)
 
-    data_value_form = EditTechnicalDataValueForm(request.POST)
+    DataValueInlineFormSet = inlineformset_factory(Product, ProductTechnicalDataValue, fields=('technical_data', 'value'))
+
+    if request.method == 'POST':
+        formset = DataValueInlineFormSet(request.POST, instance=product)
+
+        product_form = EditProductForm(request.POST, instance=product)
+
+
+        if formset.is_valid() and product_form.is_valid():
+            formset.save()
+            product_form.save()
+
+            return redirect(product.get_absolute_url())
+
+    else:
+        product_form = EditProductForm(instance=product)
+
+        formset = DataValueInlineFormSet(instance=product)
 
     context = {
+        'formset': formset,
         'product_form': product_form,
-        'data_value_form': data_value_form,
         'product': product
     }
-
-    if all([product_form.is_valid(), data_value_form.is_valid()]):
-        parent = product_form.save(commit=False)
-        parent.save()
-
-        child = data_value_form.save(commit=False)
-        child.product = parent
-        child.save()
-
-        print(product_form.cleaned_data)
-        print(data_value_form.cleaned_data)
-        
 
     return render(request, 'store/product_edit.html', context)
 
