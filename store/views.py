@@ -13,7 +13,8 @@ from django.contrib import messages
 
 from .models import (Category, Product, ProductTechnicalDataValue)
 from .forms import (AddProductForm, EditProductForm, 
-                    ProductForm, TechnicalDataValueFormSet)
+                    ProductForm, TechnicalDataValueFormSet,
+                    ManufacturerForm)
 
 import datetime
 from django.utils import timezone
@@ -322,3 +323,28 @@ def time_product(request):
         context = {}
 
     return render(request, 'store/time_product.html', context)
+
+def create_manufacturer(request):
+
+    if request.method == 'POST':
+
+        name = request.POST.get('name')
+        country = request.POST.get('country')
+
+        c = connection.cursor()
+        try:
+            c.execute("CALL create_manufacturer(%s, %s)", (name, country))
+        finally:
+            c.close()
+
+        return redirect('store:product_all')
+
+    else:
+
+        manufacturerform = ManufacturerForm()
+
+    context = {
+        'manufacturerform': manufacturerform
+    }
+
+    return render(request, 'store/create_manufacturer.html', context)

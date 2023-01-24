@@ -112,3 +112,15 @@ END;
 $$;
 
 CALL sum_count_price();
+
+-- добавление производителя
+CREATE OR REPLACE PROCEDURE create_manufacturer(in name_data varchar, in country_data varchar)
+LANGUAGE 'plpgsql'
+AS $$
+BEGIN
+	INSERT INTO manufacturers (name, country)
+	VALUES (name_data, country_data);
+END
+$$;
+
+CALL create_manufacturer('IBM', 'Америка');

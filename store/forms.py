@@ -154,3 +154,17 @@ TechnicalDataValueFormSet = inlineformset_factory(
     Product, ProductTechnicalDataValue, form=TechnicalDataValueForm, extra=1,
     can_delete=True, can_delete_extra=True
 )
+
+class ManufacturerForm(forms.Form):
+    """Форма для производителя"""
+
+    name = forms.CharField(label='Название' ,widget=forms.TextInput(
+        attrs={
+            'class': 'form-control', 'placeholder': 'Название'
+        }
+    ))
+    country = forms.CharField(label='Страна' ,widget=forms.TextInput(
+        attrs={
+            'class': 'form-control', 'placeholder': 'Страна'
+        }
+    ))

@@ -15,4 +15,5 @@ urlpatterns = [
     path('update/<int:pk>', views.ProductUpdate.as_view(), name='update_product'),
     path('count/', views.sum_count, name='sum_count'),
     path('time_product/', views.time_product, name='time_product'),
+    path('create_manufacturer/', views.create_manufacturer, name='create_manufacturer'),
 ]
