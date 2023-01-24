@@ -4,14 +4,19 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib.auth.decorators import login_required
 from django.db import connection
 from django.forms import inlineformset_factory
+from django.db.models import Sum
 
 from django.views.generic.edit import (
     CreateView, UpdateView
 )
 from django.contrib import messages
 
-from .models import Category, Product, ProductTechnicalDataValue
-from .forms import AddProductForm, EditProductForm, ProductForm, TechnicalDataValueFormSet
+from .models import (Category, Product, ProductTechnicalDataValue)
+from .forms import (AddProductForm, EditProductForm, 
+                    ProductForm, TechnicalDataValueFormSet)
+
+import datetime
+from django.utils import timezone
 
 class ProductInline():
     form_class = ProductForm
@@ -113,6 +118,30 @@ def product_detail(request, slug):
     finally:
         c.close()
 
+    up_count = request.POST.get("count_up", '')
+    down_count = request.POST.get('count_down', '')
+
+    if up_count != '':
+        product.count += int(up_count)
+
+        product.save()
+
+        if down_count == '':
+
+            return redirect(product.get_absolute_url())
+
+
+    if down_count != '':
+
+        if int(down_count) > product.count:
+            product.count = 0
+        else:
+            product.count -= int(down_count)
+
+        product.save()
+
+        return redirect(product.get_absolute_url())
+
     context = {
         'product': product,
         'data_value': data_value
@@ -202,6 +231,94 @@ def delete_product(request, id):
 
     product = get_object_or_404(Product, id=id)
 
-    product.delete()
+    c = connection.cursor()
+    try:
+        # c.callproc('del_product', [product.pk,])
+        c.execute("CALL del_product(%s::int)", (product.pk,))
+    finally:
+        c.close()
+
+    # product.delete()
 
     return redirect('store:product_all')
+
+def sum_count(request):
+    products = Product.products.all()
+
+    # общее количество товара
+    total_count = Product.objects.aggregate(Sum('count')) 
+
+    total_price = 0
+
+    c = connection.cursor()
+    try:
+        c.execute("CALL sum_count_price()")
+        total_price = c.fetchall()
+    finally:
+        c.close()
+
+    paginator = Paginator(products, 10)
+    page_number = request.GET.get('page', 1)
+
+    try:
+        page_obj = paginator.page(page_number)
+    except PageNotAnInteger:
+        page_obj = paginator.page(1)
+    except EmptyPage:
+        page_obj = paginator.page(paginator.num_pages)
+
+    context = {
+        'page_obj': page_obj,
+        'total_price': total_price,
+        'total_count': total_count,
+        'products': products
+    }
+
+    return render(request, 'store/sum_count.html', context)
+
+def time_product(request):
+
+    time = request.POST.get("lr_action", None)
+
+    if time != '':
+
+        time_now = timezone.now()
+
+        if time == 'one':
+            time_now -= datetime.timedelta(weeks=52)
+
+            products = Product.objects.all().exclude(updated_in__gte = time_now)
+
+        elif time == 'two':
+            time_now -= datetime.timedelta(minutes=10)
+
+            # вывод товара за последние 10 минут
+            # products = Product.objects.all().filter(updated_in__gte = time_now)
+
+            # весь товар не за последние 10 минут
+            products = Product.objects.all().exclude(updated_in__gte = time_now)
+            
+    else:
+        print('не выбран')
+
+    if 'products' in dir():
+
+        paginator = Paginator(products, 10)
+        page_number = request.GET.get('page', 1)
+
+        try:
+            page_obj = paginator.page(page_number)
+        except PageNotAnInteger:
+            page_obj = paginator.page(1)
+        except EmptyPage:
+            page_obj = paginator.page(paginator.num_pages)
+
+        context = {
+            'page_obj': page_obj
+        }
+
+    else:
+
+        context = {}
+
+    return render(request, 'store/time_product.html', context)

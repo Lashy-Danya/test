@@ -44,6 +44,18 @@ class Manufacturer(models.Model):
     def __str__(self):
         return self.name
 
+class Discount(models.Model):
+    amount = models.IntegerField(verbose_name='Размер скидки')
+    reason = models.TextField(verbose_name='Причина скидки')
+
+    class Meta:
+        db_table = 'discount'
+        verbose_name = 'Скидка'
+        verbose_name_plural = 'Скидки'
+
+    def __str__(self):
+        return f'{self.amount}'
+
 class ProductType(models.Model):
     """Таблица представления различных типов товара"""
     name = models.CharField(
@@ -79,11 +91,17 @@ class ProductTechnicalData(models.Model):
 
 class Product(models.Model):
     """Таблица товара"""
-    product_type = models.ForeignKey(ProductType, on_delete=models.RESTRICT, verbose_name='Тип продукта')
-    category = models.ForeignKey(Category, on_delete=models.RESTRICT, verbose_name='Категория')
+    product_type = models.ForeignKey(
+        ProductType, on_delete=models.RESTRICT, verbose_name='Тип товара'
+    )
+    category = models.ForeignKey(
+        Category, on_delete=models.RESTRICT, verbose_name='Категория'
+    )
     name = models.CharField(verbose_name='Наименование', max_length=255)
     description = models.TextField(verbose_name='Описание', blank=True)
-    slug = models.SlugField(verbose_name='URL товара', max_length=255, unique=True)
+    slug = models.SlugField(
+        verbose_name='URL товара', max_length=255, unique=True
+    )
     price = models.DecimalField(
         verbose_name="Цена", 
         max_digits=8, 
@@ -94,11 +112,18 @@ class Product(models.Model):
         verbose_name="Наличие товара", 
         default=True
     )
-    manufacturer = models.ForeignKey(Manufacturer, on_delete=models.RESTRICT, verbose_name='Производитель')
+    manufacturer = models.ForeignKey(
+        Manufacturer, on_delete=models.RESTRICT, verbose_name='Производитель'
+    )
     warranty = models.IntegerField(verbose_name='Гарантия')
-    created_in = models.DateTimeField(auto_now_add=True, editable=False, verbose_name='Создан')
+    created_in = models.DateTimeField(
+        auto_now_add=True, editable=False, verbose_name='Создан'
+    )
     updated_in = models.DateTimeField(auto_now=True, verbose_name='Обнавлен')
-    
+    discount = models.ForeignKey(
+        Discount, on_delete=models.CASCADE, verbose_name='Скидка', blank=True, null=True
+    )
+    count = models.IntegerField(verbose_name='Количество товара')
     objects = models.Manager()
     products = ProductManager()
 
@@ -121,7 +146,9 @@ class Product(models.Model):
 class ProductTechnicalDataValue(models.Model):
     """Таблица значений технических параметров товара"""
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    technical_data = models.ForeignKey(ProductTechnicalData, on_delete=models.RESTRICT)
+    technical_data = models.ForeignKey(
+        ProductTechnicalData, on_delete=models.CASCADE
+    )
     value = models.CharField(
         verbose_name='Значение',
         max_length=255,

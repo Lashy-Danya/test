@@ -38,16 +38,26 @@
         <div class="col-md-7 col-lg-7 ps-md-3 ps-lg-5">
 
             <div class="card">
-                <h5 class="card-header">Продукт: {{ product.manufacturer }} {{ product.name }}</h5>
+                <h5 class="card-header">Продукт: {{ product.product_type }} {{ product.manufacturer }} {{ product.name }}</h5>
                 <div class="card-body">
                     <h5 class="card-title">Описание</h5>
                     <p class="card-text">{{ product.description }}</p>
 
-                    <h6 class="card-title">Гарантия</h5>
+                    <h6 class="card-title">Гарантия</h6>
                     <p class="card-text">{{ product.warranty }} месяцев</p>
 
-                    <h6 class="card-title">Цена</h5>
+                    <h6 class="card-title">Производитель</h6>
+                    <p class="card-text">{{ product.manufacturer }} (Страна: {{ product.manufacturer.country }}) </p>
+
+                    {% if product.discount != NULL %}
+                        <h6 class="card-title">Цена со скидкой в {{ product.discount.amount }}%</h6>
+                    {% else %}
+                        <h6 class="card-title">Цена</h6>
+                    {% endif %}
                     <p class="card-tetx">{{ product.price }}</p>
+
+                    <h6 class="card-title">Количество</h6>
+                    <p class="card-tetx">{{ product.count }}</p>
 
                     {% if data_value %}
                         <h6 class="card-title">Характеристики</h6>
@@ -60,9 +70,22 @@
 
                     {% endif %}
 
-                    <a href="{% url 'store:product_edit' product.id %}">Изменить</a><br>
-                    <a href="{% url 'store:update_product' product.id %}">Изменить Новый</a><br>
-                    <a href="{% url 'store:delete_product' product.id %}">Удалить</a>
+
+                    <form method="post">
+                        <h6 class="card-title">Измнение количества</h6>
+                        {% csrf_token %}
+                        <div class="input-group">
+                            <button class="btn btn-outline-secondary" type="submit">Отправить</button>
+                            <input type="number" name="count_up" min="1" placeholder="Увеличить" class="form-control">
+                            <input type="number" name="count_down" min="1" placeholder="Уменьшить" class="form-control">
+                        </div>
+                    </form>
+
+                    <div class="d-grid gap-2 d-md-block pt-3">
+                        <a class="btn btn-secondary" href="{% url 'store:update_product' product.id %}">Изменить Новый</a>
+                        <a class="btn btn-danger" href="{% url 'store:delete_product' product.id %}">Удалить</a>
+                    </div>
+
                 </div>
             </div>
 

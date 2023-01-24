@@ -1,7 +1,8 @@
 from django import forms
 from django.forms import inlineformset_factory
 
-from .models import Product, Category, ProductType, Manufacturer, ProductTechnicalDataValue
+from .models import (Product, Category, ProductType, 
+                    Manufacturer, ProductTechnicalDataValue)
 
 class AddProductForm(forms.Form):
     """Форма добавления товара"""
@@ -71,7 +72,7 @@ class ProductForm(forms.ModelForm):
         model = Product
         fields = (
             'name', 'description', 'price', 'warranty', 
-            'product_type', 'category', 'manufacturer'
+            'product_type', 'category', 'manufacturer', 'count'
         )
 
         widgets = {
@@ -82,7 +83,7 @@ class ProductForm(forms.ModelForm):
             ),
             'description': forms.Textarea(
                 attrs={
-                    'class': 'form-control', 'placeholder': 'Описание',
+                    'class': 'form-control', 'placeholder': 'Описание товара',
                     'rows': '3'
                 }
             ),
@@ -109,6 +110,11 @@ class ProductForm(forms.ModelForm):
             'manufacturer': forms.Select(
                 attrs={
                     'class': 'form-select'
+                }
+            ),
+            'count': forms.NumberInput(
+                attrs={
+                    'class': 'form-control'
                 }
             ),
         }

@@ -1,15 +1,33 @@
 {% extends "base.html" %}
-
 {% block title %}
-    {% if category %}{{ category.name }}{% else %}Продукт{% endif %}
+Поиск по времени
 {% endblock %}
 
 {% block content %}
 
-<div class="pb-3 h5">{{ category.name|title }}</div>
+<div class="pb-3 h5">Выборка по времени</div>
+
+<div class="d-flex align-items-center">
+    <div class="col-12 col-md-6 col-lg-6">
+        <form method="post">
+            {% csrf_token %}
+        
+            <div class="input-group mb-3">
+                <select name="lr_action" class="form-select" aria-label="Default select example">
+                    <option selected value="">Выберите значение</option>
+                    <option value="one">Товар более года</option>
+                    <option value="two">Товар более 10 минут</option>
+                </select>
+            
+                <button class="btn btn-outline-secondary" type="submit">Отправить</button>
+            </div>
+        
+        </form>
+    </div>
+</div>
 
 {% if not page_obj %}
-<div class="col-12">В настоящее время активных продуктов нет.</div>
+<div class="col-12">По данному запросу товаров нету</div>
 {% else %}
 
 <table class="table table-striped-columns">
@@ -39,12 +57,11 @@
         <td>{{ product.created_in }}</td>
         <td>{{ product.updated_in }}</td>
     </tbody>
+  
 
     {% endfor %}
 
 </table>
-
-{% endif %}
 
 <nav aria-label="Page navigation example">
     <ul class="pagination justify-content-center">
@@ -56,5 +73,6 @@
     </ul>
 </nav>
 
+{% endif %}
 
 {% endblock %}

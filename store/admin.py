@@ -2,8 +2,12 @@ from django.contrib import admin
 
 from .models import (
     Category, Manufacturer, Product, ProductImage,
-    ProductTechnicalData, ProductTechnicalDataValue, ProductType
+    ProductTechnicalData, ProductTechnicalDataValue, ProductType, Discount
 )
+
+@admin.register(Discount)
+class DiscountAdmin(admin.ModelAdmin):
+    list_display = ['amount', 'reason']
 
 @admin.register(Category)
 class CatygoryAdmin(admin.ModelAdmin):
@@ -30,6 +34,6 @@ class ProductTechnicalDataValueInline(admin.TabularInline):
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     """Модель Продукта в админ панеле"""
-    list_display = ['name', 'category', 'product_type', 'price', 'warranty', 'is_active']
+    list_display = ['name', 'category', 'product_type', 'price', 'warranty', 'is_active', 'count']
     list_filter = ['is_active',]
     inlines = [ProductTechnicalDataValueInline, ProductImageInline,]
