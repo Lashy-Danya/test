@@ -53,7 +53,9 @@ CREATE OR REPLACE FUNCTION price_with_discount_insert()
 AS $BODY$
 BEGIN
     if new.discount_id IS NOT NULL THEN
-        new.price = new.price - new.price * (SELECT amount FROM discount WHERE discount.id = new.discount_id)::numeric / 100;
+        new.price_discount = new.price - new.price * (SELECT amount FROM discount WHERE discount.id = new.discount_id)::numeric / 100;
+	ELSE
+		new.price_discount = new.price;
     END IF;
     return new;
 END;
@@ -68,7 +70,9 @@ CREATE OR REPLACE FUNCTION price_with_discount_update()
 AS $BODY$
 BEGIN
     if old.discount_id IS NOT NULL THEN
-        new.price = new.price - new.price * (SELECT amount FROM discount WHERE discount.id = old.discount_id)::numeric / 100;
+        new.price_discount = new.price - new.price * (SELECT amount FROM discount WHERE discount.id = old.discount_id)::numeric / 100;
+	ELSE
+		new.price_discount = new.price;
     END IF;
     return new;
 END;

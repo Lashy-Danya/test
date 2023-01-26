@@ -15,7 +15,8 @@ from django.contrib import messages
 from .models import (Category, Product, ProductTechnicalDataValue)
 from .forms import (AddProductForm, EditProductForm, 
                     ProductForm, TechnicalDataValueFormSet,
-                    ManufacturerForm, SelectManufacturerForm)
+                    ManufacturerForm, SelectManufacturerForm,
+                    SelectTypeProductForm)
 
 import datetime
 from django.utils import timezone
@@ -367,8 +368,6 @@ def selection_manufacturer(request):
 
             avg_price = Product.objects.filter(manufacturer = manufacture_id).aggregate(avg = Avg('price', output_field=FloatField()))
 
-            print(avg_price)
-
             c = connection.cursor()
             try:
                 c.execute("CALL sum_count_price_manufactur(%s)", (manufacture_id,))
@@ -420,3 +419,24 @@ def selection_manufacturer(request):
         }
 
     return render(request, 'store/selection_manafacturer.html', context)
+
+@login_required
+def discount_search(request):
+
+    products = Product.objects.all()
+        
+    paginator = Paginator(products, 10)
+    page_number = request.GET.get('page', 1)
+
+    try:
+        page_obj = paginator.page(page_number)
+    except PageNotAnInteger:
+        page_obj = paginator.page(1)
+    except EmptyPage:
+        page_obj = paginator.page(paginator.num_pages)
+
+    context = {
+        'page_obj': page_obj,
+    }
+
+    return render(request, 'store/discount_search.html', context)

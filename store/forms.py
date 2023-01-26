@@ -72,7 +72,7 @@ class ProductForm(forms.ModelForm):
         model = Product
         fields = (
             'name', 'description', 'price', 'warranty', 
-            'product_type', 'category', 'manufacturer', 'count'
+            'product_type', 'category', 'manufacturer', 'count', 'discount'
         )
 
         widgets = {
@@ -115,6 +115,11 @@ class ProductForm(forms.ModelForm):
             'count': forms.NumberInput(
                 attrs={
                     'class': 'form-control'
+                }
+            ),
+            'discount': forms.Select(
+                attrs={
+                    'class': 'form-select'
                 }
             ),
         }
@@ -184,3 +189,19 @@ class SelectManufacturerForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['manufacturer'].empty_label = 'Производитель не выбран'
+
+class SelectTypeProductForm(forms.Form):
+    """Форма получения выбора типа товара"""
+
+    name = forms.ModelChoiceField(
+        label='Тип продукта', queryset=ProductType.objects.all(),
+        widget=forms.Select(
+            attrs={
+                'class': 'form-select'
+            }
+        )
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['name'].empty_label = 'Тип продукта не выбран'

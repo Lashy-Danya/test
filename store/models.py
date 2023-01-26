@@ -116,6 +116,12 @@ class Product(models.Model):
         help_text='Максимум 999999.99',
         validators=[MinValueValidator(1)]
     )
+    price_discount = models.DecimalField(
+        verbose_name="Цена со скидкой", 
+        max_digits=8, 
+        decimal_places=2,
+        validators=[MinValueValidator(1)]
+    )
     is_active = models.BooleanField(
         verbose_name="Наличие товара", 
         default=True

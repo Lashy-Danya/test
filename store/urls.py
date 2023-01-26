@@ -17,4 +17,5 @@ urlpatterns = [
     path('time_product/', views.time_product, name='time_product'),
     path('create_manufacturer/', views.create_manufacturer, name='create_manufacturer'),
     path('selection_manufacturer/', views.selection_manufacturer, name='selection_manufacturer'),
+    path('discount_search/', views.discount_search, name='discount_search'),
 ]

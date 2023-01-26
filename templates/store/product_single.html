@@ -50,11 +50,15 @@
                     <p class="card-text">{{ product.manufacturer }} (Страна: {{ product.manufacturer.country }}) </p>
 
                     {% if product.discount != NULL %}
-                        <h6 class="card-title">Цена со скидкой в {{ product.discount.amount }}%</h6>
+                        <h6 class="card-title">Цена</h6>
+                        <p class="card-tetx">
+                            {{ product.price_discount }} / <s>{{ product.price }}</s> Скидка в {{ product.discount.amount }}%</br>
+                            Причина скидки: {{ product.discount.reason }}
+                        </p>
                     {% else %}
                         <h6 class="card-title">Цена</h6>
+                        <p class="card-tetx">{{ product.price }}</p>
                     {% endif %}
-                    <p class="card-tetx">{{ product.price }}</p>
 
                     <h6 class="card-title">Количество</h6>
                     <p class="card-tetx">{{ product.count }}</p>
