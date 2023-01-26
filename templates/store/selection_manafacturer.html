@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block title %}
+Выборка по производителю
+{% endblock %}
+
+{% block content %}
+
+<div class="pb-3 h5">Выборка по производителю</div>
+
+<div class="d-flex align-items-center">
+    <div class="col-12 col-md-6 col-lg-6">
+        <form method="post">
+            {% csrf_token %}
+        
+            <div class="input-group mb-3">
+
+                {{ selectform.manufacturer }}
+            
+                <button class="btn btn-outline-secondary" type="submit">Отправить</button>
+            </div>
+
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="check" name="check-box" id="flexCheckDefault">
+                <label class="form-check-label" for="flexCheckDefault">
+                    Вывод доп информации
+                </label>
+            </div>
+              
+        
+        </form>
+    </div>
+</div>
+
+{% if not page_obj %}
+<div class="col-12 mt-2">По данному запросу товаров нету</div>
+{% else %}
+
+{% if total_count %}
+<div class="alert alert-info mt-2" role="alert">
+    <div class="h5 pb-3">Количество товара: {{ total_count.sum }}</div>
+    <div class="h5">На сумму: {{ total_price.0.0 }}</div>
+    <div class="h5">Средняя цена товаров: {{ avg_price.avg }}</div>
+</div>
+{% endif %}
+
+<table class="table table-striped-columns">
+
+    <thead>
+        <th scope="col">Название</th>
+        <th scope="col">Производитель</th>
+        <th scope="col">Тип товара</th>
+        <th scope="col">Гарантия (месяц)</th>
+        <th scope="col">Цена (шт.)</th>
+        <th scope="col">Количество</th>
+        <th scope="col">Обновлен</th>
+    </thead>
+
+    {% for product in page_obj %}
+
+    <tbody>
+        <td>
+            <a href="{{ product.get_absolute_url }}" class="text-dark text-decoration-none">
+                {{ product.name }}
+            </a>
+        </td>
+        <td>{{ product.manufacturer }}</td>
+        <td>{{ product.product_type }}</td>
+        <td>{{ product.warranty }}</td>
+        <td>{{ product.price }}</td>
+        <td>{{ product.count }}</td>
+        <td>{{ product.updated_in }}</td>
+    </tbody>
+  
+
+    {% endfor %}
+
+</table>
+
+<nav aria-label="Page navigation example">
+    <ul class="pagination justify-content-center">
+        {% for page in page_obj.paginator.page_range %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page }}">{{ page }}</a>
+        </li>
+        {% endfor %}
+    </ul>
+</nav>
+
+{% endif %}
+
+{% endblock %}

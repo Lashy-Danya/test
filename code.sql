@@ -79,16 +79,6 @@ CREATE TRIGGER price_with_discount_update_trigger
     FOR EACH ROW
     EXECUTE FUNCTION price_with_discount_update();
 
--- Удаление продукта
-CREATE OR REPLACE PROCEDURE del_product(in id_product int)
-LANGUAGE 'plpgsql'
-AS $$
-BEGIN
-	DELETE FROM products CASCADE 
-	WHERE id_product = products.id;
-END;
-$$;
-
 -- Посмотреть про on_delete в django
 ALTER TABLE product_technical_data_value ADD FOREIGN KEY(product_id)
 REFERENCES products(id) ON DELETE CASCADE;
@@ -124,3 +114,15 @@ END
 $$;
 
 CALL create_manufacturer('IBM', 'Америка');
+
+-- расчет общей суммы товара по производителю
+CREATE OR REPLACE PROCEDURE sum_count_price_manufactur(in manufactur_id int, inout total_price numeric DEFAULT NULL)
+LANGUAGE 'plpgsql'
+AS $$
+BEGIN
+	total_price := (SELECT SUM(count * price) FROM products
+				   WHERE manufacturer_id = manufactur_id);
+END;
+$$;
+
+CALL sum_count_price_manufactur(2);

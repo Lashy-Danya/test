@@ -168,3 +168,19 @@ class ManufacturerForm(forms.Form):
             'class': 'form-control', 'placeholder': 'Страна'
         }
     ))
+
+class SelectManufacturerForm(forms.Form):
+    """Форма получения выбора производителей"""
+
+    manufacturer = forms.ModelChoiceField(
+        label='Производитель', queryset=Manufacturer.objects.all(),
+        widget=forms.Select(
+            attrs={
+                'class': 'form-select'
+            }
+        )
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['manufacturer'].empty_label = 'Производитель не выбран'

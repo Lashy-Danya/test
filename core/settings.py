@@ -45,7 +45,6 @@ INSTALLED_APPS = [
     'bootstrap5',
     'store.apps.StoreConfig',
     'account.apps.AccountConfig',
-    'accounting.apps.AccountingConfig',
 ]
 
 MIDDLEWARE = [

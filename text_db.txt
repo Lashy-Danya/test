@@ -40,6 +40,7 @@ Table Product {
   manufacturer int
   discount int
   warranty int
+  count int
 }
 Ref: Manufacturer.id < Product.manufacturer
 Ref: ProductType.id < Product.product_type
@@ -62,31 +63,3 @@ Table ProductImage {
   desc_image varchar
 }
 Ref: Product.id < ProductImage.product
-
-Table Vendor {
-  id int [pk, increment]
-  name varchar
-}
-
-Table ShipmentType {
-  id int [pk, increment]
-  name varchar
-}
-
-Table ShipmentDetails {
-  id int [pk, increment]
-  vendor int
-  date_shipment date
-  shipment_type int
-}
-Ref: Vendor.id < ShipmentDetails.vendor
-Ref: ShipmentType.id < ShipmentDetails.shipment_type
-
-Table ShipmentDetailsData {
-  id int [pk, increment]
-  product int
-  shipment int
-  count int
-}
-Ref: Product.id < ShipmentDetailsData.product
-Ref: ShipmentDetails.id < ShipmentDetailsData.shipment

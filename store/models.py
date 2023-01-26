@@ -1,6 +1,7 @@
 from django.db import models
 from django.urls import reverse
 from django.utils.text import slugify
+from django.core.validators import MaxValueValidator, MinValueValidator
 
 class ProductManager(models.Manager):
     def get_queryset(self):
@@ -45,7 +46,13 @@ class Manufacturer(models.Model):
         return self.name
 
 class Discount(models.Model):
-    amount = models.IntegerField(verbose_name='Размер скидки')
+    """Таблица скидки"""
+    amount = models.IntegerField(
+        verbose_name='Размер скидки',
+        validators=[
+            MinValueValidator(1), MaxValueValidator(100)
+        ]
+    )
     reason = models.TextField(verbose_name='Причина скидки')
 
     class Meta:
@@ -106,7 +113,8 @@ class Product(models.Model):
         verbose_name="Цена", 
         max_digits=8, 
         decimal_places=2,
-        help_text='Максимум 999999.99'
+        help_text='Максимум 999999.99',
+        validators=[MinValueValidator(1)]
     )
     is_active = models.BooleanField(
         verbose_name="Наличие товара", 

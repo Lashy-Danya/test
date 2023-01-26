@@ -4,7 +4,8 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib.auth.decorators import login_required
 from django.db import connection
 from django.forms import inlineformset_factory
-from django.db.models import Sum
+from django.db.models import Sum, Avg
+from django.db.models import FloatField
 
 from django.views.generic.edit import (
     CreateView, UpdateView
@@ -14,7 +15,7 @@ from django.contrib import messages
 from .models import (Category, Product, ProductTechnicalDataValue)
 from .forms import (AddProductForm, EditProductForm, 
                     ProductForm, TechnicalDataValueFormSet,
-                    ManufacturerForm)
+                    ManufacturerForm, SelectManufacturerForm)
 
 import datetime
 from django.utils import timezone
@@ -225,8 +226,6 @@ def edit_product(request, id):
 
     return render(request, 'store/product_edit.html', context)
 
-
-# вызовать сохр. процедуру удаления
 @login_required
 def delete_product(request, id):
 
@@ -243,6 +242,7 @@ def delete_product(request, id):
 
     return redirect('store:product_all')
 
+@login_required
 def sum_count(request):
     products = Product.products.all()
 
@@ -277,6 +277,7 @@ def sum_count(request):
 
     return render(request, 'store/sum_count.html', context)
 
+@login_required
 def time_product(request):
 
     time = request.POST.get("lr_action", None)
@@ -298,9 +299,6 @@ def time_product(request):
 
             # весь товар не за последние 10 минут
             products = Product.objects.all().exclude(updated_in__gte = time_now)
-            
-    else:
-        print('не выбран')
 
     if 'products' in dir():
 
@@ -324,6 +322,7 @@ def time_product(request):
 
     return render(request, 'store/time_product.html', context)
 
+@login_required
 def create_manufacturer(request):
 
     if request.method == 'POST':
@@ -348,3 +347,76 @@ def create_manufacturer(request):
     }
 
     return render(request, 'store/create_manufacturer.html', context)
+
+@login_required
+def selection_manufacturer(request):
+
+    selectform = SelectManufacturerForm()
+
+    manufacture_id = request.POST.get("manufacturer", None)
+
+    check = request.POST.get('check-box', None)
+
+    if manufacture_id != '':
+
+        products = Product.objects.all().filter(manufacturer = manufacture_id)
+
+        if check == 'check':
+
+            total_count = Product.objects.filter(manufacturer = manufacture_id).aggregate(sum = Sum('count'))
+
+            avg_price = Product.objects.filter(manufacturer = manufacture_id).aggregate(avg = Avg('price', output_field=FloatField()))
+
+            print(avg_price)
+
+            c = connection.cursor()
+            try:
+                c.execute("CALL sum_count_price_manufactur(%s)", (manufacture_id,))
+                total_price = c.fetchall()
+            finally:
+                c.close()
+
+    if 'products' in dir() and 'total_count' in dir():
+
+        paginator = Paginator(products, 10)
+        page_number = request.GET.get('page', 1)
+
+        try:
+            page_obj = paginator.page(page_number)
+        except PageNotAnInteger:
+            page_obj = paginator.page(1)
+        except EmptyPage:
+            page_obj = paginator.page(paginator.num_pages)
+
+        context = {
+            'page_obj': page_obj,
+            'selectform': selectform,
+            'total_count': total_count,
+            'total_price': total_price,
+            'avg_price': avg_price
+        }
+
+    elif 'products' in dir():
+
+        paginator = Paginator(products, 10)
+        page_number = request.GET.get('page', 1)
+
+        try:
+            page_obj = paginator.page(page_number)
+        except PageNotAnInteger:
+            page_obj = paginator.page(1)
+        except EmptyPage:
+            page_obj = paginator.page(paginator.num_pages)
+
+        context = {
+            'page_obj': page_obj,
+            'selectform': selectform,
+        }
+
+    else:
+
+        context = {
+            'selectform': selectform
+        }
+
+    return render(request, 'store/selection_manafacturer.html', context)
