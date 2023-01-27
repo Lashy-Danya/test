@@ -44,7 +44,7 @@ class ProductInline():
 
     def formset_variants_valid(self, formset):
         """
-        Hook for custom formset saving.Useful if you have multiple formsets
+        Hook for custom formset if you have multiple formsets
         """
         variants = formset.save(commit=False)  # self.save_formset(formset, contact)
         # add this 2 lines, if you have can_delete=True parameter 
@@ -263,9 +263,6 @@ def sum_count(request):
         products_view = c.fetchall()
     finally:
         c.close()
-
-    for item in products_view:
-        print(item)
 
     paginator = Paginator(products_view, 10)
     page_number = request.GET.get('page', 1)
