@@ -15,8 +15,7 @@ from django.contrib import messages
 from .models import (Category, Product, ProductTechnicalDataValue)
 from .forms import (AddProductForm, EditProductForm, 
                     ProductForm, TechnicalDataValueFormSet,
-                    ManufacturerForm, SelectManufacturerForm,
-                    SelectTypeProductForm)
+                    ManufacturerForm, SelectManufacturerForm)
 
 import datetime
 from django.utils import timezone
@@ -245,7 +244,6 @@ def delete_product(request, id):
 
 @login_required
 def sum_count(request):
-    products = Product.products.all()
 
     # общее количество товара
     total_count = Product.objects.aggregate(Sum('count')) 
@@ -259,7 +257,17 @@ def sum_count(request):
     finally:
         c.close()
 
-    paginator = Paginator(products, 10)
+    c = connection.cursor()
+    try:
+        c.execute("SELECT * FROM sum_price_view")
+        products_view = c.fetchall()
+    finally:
+        c.close()
+
+    for item in products_view:
+        print(item)
+
+    paginator = Paginator(products_view, 10)
     page_number = request.GET.get('page', 1)
 
     try:
@@ -273,7 +281,7 @@ def sum_count(request):
         'page_obj': page_obj,
         'total_price': total_price,
         'total_count': total_count,
-        'products': products
+        'products_view': products_view
     }
 
     return render(request, 'store/sum_count.html', context)
@@ -299,6 +307,11 @@ def time_product(request):
             # products = Product.objects.all().filter(updated_in__gte = time_now)
 
             # весь товар не за последние 10 минут
+            products = Product.objects.all().exclude(updated_in__gte = time_now)
+
+        elif time == 'tree':
+            time_now -= datetime.timedelta(days=1)
+
             products = Product.objects.all().exclude(updated_in__gte = time_now)
 
     if 'products' in dir():

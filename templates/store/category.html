@@ -6,7 +6,7 @@
 
 {% block content %}
 
-<div class="pb-3 h5">{{ category.name|title }}</div>
+<div class="pb-3 h5">{{ category.name|capfirst }}</div>
 
 {% if not page_obj %}
 <div class="col-12">В настоящее время активных продуктов нет.</div>

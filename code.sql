@@ -130,3 +130,16 @@ END;
 $$;
 
 CALL sum_count_price_manufactur(2);
+
+-- сводка по количеству и на какую сумму товара
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO web_user;
+
+CREATE VIEW sum_price_view AS
+SELECT products.name AS prod_name, manufacturers.name AS man_name,
+product_type.name AS type_name, products.count,
+products.price, products.price * products.count AS count_price
+FROM products
+JOIN manufacturers ON products.manufacturer_id = manufacturers.id
+JOIN product_type ON products.product_type_id = product_type.id;
+
+SELECT * FROM sum_price_view;

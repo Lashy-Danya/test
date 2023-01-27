@@ -37,7 +37,7 @@
                         </li>
                         {% for c in categories %}
                         <li>
-                            <a class="dropdown-item" href="{{ c.get_absolute_url }}">{{ c.name|title }}</a>
+                            <a class="dropdown-item" href="{{ c.get_absolute_url }}">{{ c.name|capfirst }}</a>
                         </li>
                         {% endfor %}
                     </ul>
