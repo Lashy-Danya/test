@@ -10,7 +10,6 @@ from django.db.models import FloatField
 from django.views.generic.edit import (
     CreateView, UpdateView
 )
-from django.contrib import messages
 
 from .models import (Category, Product, ProductTechnicalDataValue)
 from .forms import (AddProductForm, EditProductForm, 
@@ -43,9 +42,6 @@ class ProductInline():
         return redirect('store:product_all')
 
     def formset_variants_valid(self, formset):
-        """
-        Hook for custom formset if you have multiple formsets
-        """
         variants = formset.save(commit=False)  # self.save_formset(formset, contact)
         # add this 2 lines, if you have can_delete=True parameter 
         # set in inlineformset_factory func
@@ -69,7 +65,10 @@ class ProductCreate(ProductInline, CreateView):
             }
         else:
             return {
-                'variants': TechnicalDataValueFormSet(self.request.POST or None, self.request.FILES or None, prefix='variants'),
+                'variants': TechnicalDataValueFormSet(
+                    self.request.POST or None, 
+                    self.request.FILES or None, prefix='variants'
+                ),
             }
 
 class ProductUpdate(ProductInline, UpdateView):
@@ -81,11 +80,15 @@ class ProductUpdate(ProductInline, UpdateView):
 
     def get_named_formsets(self):
         return {
-            'variants': TechnicalDataValueFormSet(self.request.POST or None, self.request.FILES or None, instance=self.object, prefix='variants'),
+            'variants': TechnicalDataValueFormSet(
+                self.request.POST or None, 
+                self.request.FILES or None, instance=self.object, prefix='variants'
+            ),
         }
 
 
 @login_required
+# функция для отображения всех товаров
 def product_all(request):
     products = Product.products.all()
 
@@ -105,6 +108,7 @@ def product_all(request):
 
     return render(request, 'store/index.html', context)
 
+# функция для отображения страницы товара
 @login_required
 def product_detail(request, slug):
     product = get_object_or_404(Product, slug=slug)
@@ -151,6 +155,7 @@ def product_detail(request, slug):
 
     return render(request, 'store/product_single.html', context)
 
+# функция для отображения товара по категориям
 @login_required
 def category_list(request, category_slug):
     category = get_object_or_404(Category, slug=category_slug, is_active=True)
@@ -173,6 +178,7 @@ def category_list(request, category_slug):
 
     return render(request, 'store/category.html', context)
 
+# функция для добавления товара
 @login_required
 def add_product(request):
 
@@ -193,13 +199,17 @@ def add_product(request):
 
     return render(request, 'store/product_add.html', context)
 
+# функция для изменения данных товара
 @login_required
 def edit_product(request, id):
 
     product = get_object_or_404(Product, id=id)
 
 
-    DataValueInlineFormSet = inlineformset_factory(Product, ProductTechnicalDataValue, fields=('technical_data', 'value'))
+    DataValueInlineFormSet = inlineformset_factory(
+        Product, ProductTechnicalDataValue, 
+        fields=('technical_data', 'value')
+    )
 
     if request.method == 'POST':
         formset = DataValueInlineFormSet(request.POST, instance=product)
@@ -226,6 +236,7 @@ def edit_product(request, id):
 
     return render(request, 'store/product_edit.html', context)
 
+# функция для удаления товара
 @login_required
 def delete_product(request, id):
 
@@ -242,6 +253,7 @@ def delete_product(request, id):
 
     return redirect('store:product_all')
 
+# функция для получения о общем количестве товара и на какую сумму
 @login_required
 def sum_count(request):
 
@@ -283,6 +295,7 @@ def sum_count(request):
 
     return render(request, 'store/sum_count.html', context)
 
+# функция для выборки товара по времени
 @login_required
 def time_product(request):
 
@@ -333,6 +346,7 @@ def time_product(request):
 
     return render(request, 'store/time_product.html', context)
 
+# функция для добавления производителя
 @login_required
 def create_manufacturer(request):
 
@@ -359,6 +373,7 @@ def create_manufacturer(request):
 
     return render(request, 'store/create_manufacturer.html', context)
 
+# функция для выборки товара по производителю
 @login_required
 def selection_manufacturer(request):
 
@@ -374,9 +389,14 @@ def selection_manufacturer(request):
 
         if check == 'check':
 
-            total_count = Product.objects.filter(manufacturer = manufacture_id).aggregate(sum = Sum('count'))
+            total_count = Product.objects.filter(
+                manufacturer = manufacture_id).aggregate(sum = Sum('count')
+            )
 
-            avg_price = Product.objects.filter(manufacturer = manufacture_id).aggregate(avg = Avg('price', output_field=FloatField()))
+            avg_price = Product.objects.filter(
+                manufacturer = manufacture_id).aggregate(avg = Avg('price', 
+                output_field=FloatField())
+            )
 
             c = connection.cursor()
             try:
@@ -430,6 +450,7 @@ def selection_manufacturer(request):
 
     return render(request, 'store/selection_manafacturer.html', context)
 
+# функция для отображения товара со скидкой и без
 @login_required
 def discount_search(request):
 

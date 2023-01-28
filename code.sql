@@ -77,11 +77,8 @@ BEGIN
     return new;
 END;
 $BODY$;
-CREATE TRIGGER price_with_discount_update_trigger 
-    BEFORE UPDATE 
-    ON products
-    FOR EACH ROW
-    EXECUTE FUNCTION price_with_discount_update();
+CREATE TRIGGER price_with_discount_update_trigger BEFORE UPDATE ON products
+FOR EACH ROW EXECUTE FUNCTION price_with_discount_update();
 
 -- Посмотреть про on_delete в django
 ALTER TABLE product_technical_data_value ADD FOREIGN KEY(product_id)
